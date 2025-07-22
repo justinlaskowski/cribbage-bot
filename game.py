@@ -37,7 +37,7 @@ class Deck:
     def flip_starter(self):
         choice = random.choice(self.cards)
         choice.starter = True
-        self.cards.remoce(choice)
+        self.cards.remove(choice)
         return choice
 
 # ways to score hands in cribbage (score):
@@ -54,18 +54,49 @@ class Hand:
         self.score = 0
         self._saved_runs = []
     
-    # def _score_five(self):
+    def _score_five(self):
+        # check runs
+        suit = None
+        starter_suit = None
+        sum_values = 0
+        run = []
+        for i, card in enumerate(self.cards):
+            if i == 0 or (i == 1 and run[0] + 1 == card.value) or (i > 1 and run and run[len(run)-1] + 1 == card.value):
+                run.append(card.value)
+            else:
+                run = []
+            sum_values += card.value
+            if card.starter:
+                starter_suit = card.suit
+            if suit != card.suit and card.starter is False:
+                suit = None
+            if (i == 4 and suit) or (i == 3 and suit and starter_suit == None): # flush reached on fourth card without starter or fifth card 
+                self.score += 4
+            if i == 4 and suit and starter_suit == suit:
+                self.score += 1
+            if i == 4 and sum_values == 15: # five cards add to 15
+                self.score += 2
+            
+            
+            
+
+
+
+
         
     # def _score_four(self, saved_runs):
     # def _score_three(self, saved_runs):
     # def _score_two(self, saved_runs):
     # def score_hand(self):
-    #     self.cards = sorted(self.cards)
+    #     self.cards = sorted(self.cards, key=lambda v: v.sort_value, reverse=True)
+        
+        
+        
     #     _score_five()
     #     _score_four()
     #     _score_three()
     #     _score_two()
-        
+            
         # score all unique subsets of size 2 (check for 15's and pairs, nobs if one of pair is starter and the other is Jack with same suit)
         # score all unique subsets of size 3 (check for 15's and runs)
         # score all unique subsets of size 4 (check for 15's, runs, and flushes)
@@ -105,8 +136,9 @@ class Crib(Hand): # points in crib alternate between players
 # 
 d = Deck()
 hand = []
-for i in [1, 2, 3, 4, 5]:
-    card = d.random_draw()
-    hand.append(card)
-hand = sorted(hand, key=lambda v: v.sort_value, reverse=True)
-[card.name() for card in hand]
+print(bool(hand and hand[1]))
+# for i in [1, 2, 3, 4, 5]:
+#     card = d.random_draw()
+#     hand.append(card)
+# hand = sorted(hand, key=lambda v: v.sort_value, reverse=True)
+# [card.name() for card in hand]
