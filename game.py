@@ -55,7 +55,8 @@ class Hand:
         self._saved_runs = []
     
     def _score_five(self):
-        # check runs
+        # flushes and 15's now work for five cards
+        flush = False
         suit = None
         starter_suit = None
         sum_values = 0
@@ -66,17 +67,26 @@ class Hand:
             else:
                 run = []
             sum_values += card.value
+            if i == 0:
+                suit = card.suit
             if card.starter:
                 starter_suit = card.suit
-            if suit != card.suit and card.starter is False:
+            if suit != card.suit and bool(card.starter) == False:
                 suit = None
-            if (i == 4 and suit) or (i == 3 and suit and starter_suit == None): # flush reached on fourth card without starter or fifth card 
+            if (i == 4 and suit and flush is not True) or (i == 3 and suit and starter_suit == None): # flush reached on fourth card without starter or fifth card 
                 self.score += 4
+                flush = True
+                print(f"Flush for {self.score}")
             if i == 4 and suit and starter_suit == suit:
                 self.score += 1
-            if i == 4 and sum_values == 15: # five cards add to 15
-                self.score += 2
-            
+                print(f"Flush for {self.score}")
+        if sum_values == 15: # five cards add to 15
+            self.score += 2
+            print(f"Fifteen for {self.score}")
+        if run and len(run) == 5:
+            self.score += 5
+            print(f"Run for {self.score}")
+
             
             
 
@@ -113,7 +123,7 @@ class PlayerHand(Hand): # draw 6 cards, then discard 2 into crib
     def __init__(self, player):
         super().__init__(player)
     def draw_card(self, card: Card): 
-        if len(self.cards) < 6:
+        if len(self.cards) < 5:
             self.cards.append(card)
             return True
         return False
@@ -134,9 +144,18 @@ class Crib(Hand): # points in crib alternate between players
 
 # hands to test:
 # 
-d = Deck()
-hand = []
-print(bool(hand and hand[1]))
+hand = PlayerHand(player=1)
+deck = Deck()
+
+hand.draw_card(Card("Hearts", "Ace", 1, 1))
+hand.draw_card(Card("Hearts", "Two", 2, 2))
+hand.draw_card(Card("Hearts", "Three", 3, 3))
+hand.draw_card(Card("Hearts", "Four", 4, 4))
+hand.draw_card(Card("Hearts", "Five", 5, 5))
+
+for card in hand.cards:
+    card.name()
+hand._score_five()
 # for i in [1, 2, 3, 4, 5]:
 #     card = d.random_draw()
 #     hand.append(card)
