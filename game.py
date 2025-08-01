@@ -1,6 +1,6 @@
 import numpy as np
 import random
-import itertools
+from itertools import combinations
 
 class Card:
     def __init__(self, suit, rank, value, sort_value):
@@ -52,8 +52,33 @@ class Hand:
     def __init__(self, player): # player: 1, 2 (maybe will add 3 players)
         self.cards = [] 
         self.score = 0
-        self._saved_runs = []
-    
+    def _score_fifteens(self):
+        combos = []
+        for r in range(1, len(self.cards) + 1):
+            current_combos = list(combinations(self.cards, r))
+            combos.extend(current_combos)
+        for combo in combos:
+            if sum([card.value for card in combo]) == 15:
+                self.score += 2
+                print(f"15 for {self.score}")
+    def _score_runs(self):
+        self.cards = sorted(self.cards, key=lambda v: v.sort_value)
+        pointer = 1
+        run = 0
+        while pointer <= 4:
+            if self.cards[pointer].sort_value - 1 == self.cards[pointer - 1].sort_value: 
+                run += 1
+            elif run >= 2:
+                return run + 1
+            else:
+                run = 0
+            pointer += 1
+        if run > 0:
+            self.score = self.score + run + 1
+            print(f"Run for {self.score}")
+        
+    def _score_flushes(self):
+        self.cards
     def _score_five(self):
         # flushes and 15's now work for five cards
         flush = False
@@ -87,13 +112,6 @@ class Hand:
             self.score += 5
             print(f"Run for {self.score}")
 
-            
-            
-
-
-
-
-        
     # def _score_four(self, saved_runs):
     # def _score_three(self, saved_runs):
     # def _score_two(self, saved_runs):
@@ -113,12 +131,6 @@ class Hand:
         #   Can't double count runs (ex: 2, 3, 4 and 2, 3, 4, 5 counted as seperate runs), flushes at this level cannot contain starter
         # score full hand of 5 (check for 15's, runs (without double counting), flushes)
         
-    
-
-
-
-
-    
 class PlayerHand(Hand): # draw 6 cards, then discard 2 into crib
     def __init__(self, player):
         super().__init__(player)
@@ -149,13 +161,16 @@ deck = Deck()
 
 hand.draw_card(Card("Hearts", "Ace", 1, 1))
 hand.draw_card(Card("Hearts", "Two", 2, 2))
-hand.draw_card(Card("Hearts", "Three", 3, 3))
-hand.draw_card(Card("Hearts", "Four", 4, 4))
 hand.draw_card(Card("Hearts", "Five", 5, 5))
+hand.draw_card(Card("Hearts", "Six", 6, 6))
+hand.draw_card(Card("Hearts", "Three", 3, 3))
 
 for card in hand.cards:
-    card.name()
-hand._score_five()
+    print(card.sort_value)
+
+hand._score_runs()
+
+
 # for i in [1, 2, 3, 4, 5]:
 #     card = d.random_draw()
 #     hand.append(card)
